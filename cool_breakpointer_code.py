@@ -58,6 +58,9 @@ for k in chromosome_pairs:
         if next_row[sp2+'_start'] > (row[sp2+'_stop'] + len_bp):
             the_list.append(row)
             the_list.append(next_row)
+        if next_row[sp2+'_start'] > (row[sp2+'_start'] + len_bp):
+            the_list.append(row)
+            the_list.append(next_row)
         if next_row[sp2+'_start'] < (row[sp2+'_stop'] - len_bp):
             the_list.append(row)
             the_list.append(next_row)
@@ -78,6 +81,8 @@ for k in chromosome_pairs:
     #make it with lines
     #draw vertical/horizontal axis with breakpoints
     #generate a figure and axis object
+    x_values = [pair_dataframe[sp1+'_start'], pair_dataframe[sp1+'_stop']]
+    y_values = [pair_dataframe[sp2+'_start'], pair_dataframe[sp2+'_stop']]
     fig, ax = plt.subplots(figsize=(10, 10))
     # test_grouped=sp1_to_sp2.groupby([sp1+'_chr', sp2+'_chr'])
     # #filters row based on the two col names
@@ -85,14 +90,14 @@ for k in chromosome_pairs:
     # #b=unique(sp1_to_sp2[sp2+'_chr'])
     #plotdf=sp1_to_sp2.loc[(sp1_to_sp2[sp1+'_chr']=='CM046601.1') & (sp1_to_sp2[sp2+'_chr']=='Ovu01'),]
     
-    
+    plt.plot(x_values, y_values, 'b', linestyle="solid")
     #create a scatter plot
-    ax.scatter(pair_dataframe[sp1+'_start'], pair_dataframe[sp2+'_stop'])
+    #ax.scatter(pair_dataframe[sp1+'_start'], pair_dataframe[sp2+'_stop'])
     
-    # connect adjacent points with lines
-    for i in range(len(pair_dataframe)-1):
-        row=pair_dataframe.iloc[i]
-        ax.plot(row[sp1+'_start'], row[sp2+'_stop'], 'k-', alpha=0.5)
+    # # connect adjacent points with lines
+    # for i in range(len(pair_dataframe)-1):
+    #     row=pair_dataframe.iloc[i]
+    #     ax.plot(row[sp1+'_start'], row[sp2+'_stop'], 'k-', alpha=0.5)
         
     ylim = ax.get_ylim()    
     for i in range(len(pair_dataframe)):
