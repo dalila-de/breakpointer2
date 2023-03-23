@@ -18,6 +18,7 @@ q = 30
 #Write what's the distance between two ends of the aligned fragments to call it a breakpoint
 len_bp = 10000000
 
+#EBR=evolutionary breakpoints
 #make sure to know where you're working, can be modified later as an input
 os.chdir(r'/Users/dalilad/Desktop/The_octopus_code/breakpointer2-main')
 #os.chdir(r'/Users/dalilad/Desktop/The_octopus_code')
@@ -51,7 +52,8 @@ for k in chromosome_pairs:
     pair_dataframe=sp1_to_sp2.loc[(sp1_to_sp2[sp1+'_chr']==k) & (sp1_to_sp2[sp2+'_chr']==chromosome_pairs[k]),]
     #I open this list as it has been shown as the easiest-least-crashiest way to do what I want to do
     the_list = []
-    
+    #bed file starts and stops: the start is the least num and the stop is higher (regardless of the strand)
+    #write an if statement and plot them vice versa for - direction
     for i in range(len(pair_dataframe)-1):
         row=pair_dataframe.iloc[i]
         next_row=pair_dataframe.iloc[i+1]
@@ -70,7 +72,25 @@ for k in chromosome_pairs:
         if next_row[sp1+'_start'] < (row[sp1+'_stop'] - len_bp):
             the_list.append(row)
             the_list.append(next_row)
-            
+        if next_row[sp2+'_stop'] > (row[sp2+'_start'] + len_bp):
+            the_list.append(row)
+            the_list.append(next_row)
+        if next_row[sp2+'_start'] > (row[sp2+'_start'] + len_bp):
+            the_list.append(row)
+            the_list.append(next_row)
+        if next_row[sp2+'_start'] > (row[sp2+'_stop'] + len_bp):
+            the_list.append(row)
+            the_list.append(next_row)
+        # if row[sp2+'_stop'] < (next_row[sp2+'_start'] - len_bp):
+        #     the_list.append(row)
+        #     the_list.append(next_row)
+        # if next_row[sp1+'_stop'] > (row[sp1+'_stop'] + len_bp):
+        #     the_list.append(row)
+        #     the_list.append(next_row)
+        # if next_row[sp1+'_start'] < (row[sp1+'_start'] - len_bp):
+        #     the_list.append(row)
+        #     the_list.append(next_row)
+                
     sp1_to_sp2_final_table= pd.concat(the_list, axis=1)
     sp1_to_sp2_final_table = sp1_to_sp2_final_table.transpose().drop_duplicates()
     
@@ -81,19 +101,26 @@ for k in chromosome_pairs:
     #make it with lines
     #draw vertical/horizontal axis with breakpoints
     #generate a figure and axis object
-    x_values = [pair_dataframe[sp1+'_start'], pair_dataframe[sp1+'_stop']]
-    y_values = [pair_dataframe[sp2+'_start'], pair_dataframe[sp2+'_stop']]
+    
     fig, ax = plt.subplots(figsize=(10, 10))
-    # test_grouped=sp1_to_sp2.groupby([sp1+'_chr', sp2+'_chr'])
-    # #filters row based on the two col names
-    # #a=unique(sp1_to_sp2[sp1+'_chr'])
-    # #b=unique(sp1_to_sp2[sp2+'_chr'])
-    #plotdf=sp1_to_sp2.loc[(sp1_to_sp2[sp1+'_chr']=='CM046601.1') & (sp1_to_sp2[sp2+'_chr']=='Ovu01'),]
+    x_values = []
+    y_values = []
+    
+    for i in range(len(pair_dataframe)):
+        row = pair_dataframe.iloc[i]
+        if row['relative_orientation'] == '+':
+            x1_values = [row[sp1+'_start'], row[sp1+'_stop']]
+            y1_values = [row[sp2+'_start'], row[sp2+'_stop']]
+            x_values.append(x1_values)
+            y_values.append(y1_values)
+        else:
+            x2_values = [row[sp1+'_stop'], row[sp1+'_start']]
+            y2_values = [row[sp2+'_start'], row[sp2+'_stop']]
+            x_values.append(x2_values)
+            y_values.append(y2_values)
     
     plt.plot(x_values, y_values, 'b', linestyle="solid")
-    #create a scatter plot
-    #ax.scatter(pair_dataframe[sp1+'_start'], pair_dataframe[sp2+'_stop'])
-    
+
     # # connect adjacent points with lines
     # for i in range(len(pair_dataframe)-1):
     #     row=pair_dataframe.iloc[i]
@@ -123,9 +150,9 @@ for k in chromosome_pairs:
     # formatter = ticker.ScalarFormatter(useMathText=True)
     # formatter.set_powerlimits((-3, 4))  # Set the exponent range to show
     # ax.xaxis.set_major_formatter(formatter)
-    ax.set_xlabel('X Axis Label')
-    ax.set_ylabel('Y Axis Label')
-    ax.set_title('Title')
+    ax.set_xlabel('Octopus bimaculoides')
+    ax.set_ylabel('Octopus vulgaris')
+    ax.set_title('Chromosome '+k+' vs chromosome '+chromosome_pairs[k])
     
     plt.show()
 
@@ -145,6 +172,15 @@ for k in chromosome_pairs:
 # #     row=plotdf.iloc[i]
 # #     if plotdf[row,'breakpoints']==True:
 # #       plt.axvline(x=plotdf[sp1+'_start'] & plotdf[sp2+'_stop'], ymin = 0, ymax = plotdf[sp2+'_start'].max(), color = "red")
+
+
+
+
+#list of ranges-----each breakpoint left side and right side--- both species
+#plot horizontal or vertical line between the breakpoints(midpoint)
+
+
+
 
 #plt.save can pick pdf
 #goal to have a D-Genies plot I can zoom in on
