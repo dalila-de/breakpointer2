@@ -27,6 +27,9 @@ os.chdir(r'/Users/dalilad/Desktop/The_octopus_code/breakpointer2-main')
 #to disable the warning when adding the breakpoints column to the original dataframe
 pd.options.mode.chained_assignment = None
 
+#to disable the warning when adding the breakpoints column to the original dataframe
+pd.options.mode.chained_assignment = None
+
 #The .paf file part, aka the analysis of the breakpoints in genome-genome alignments
 
 #This part reads in the .paf file as Pandas DataFrame
@@ -66,12 +69,6 @@ for k in chromosome_pairs:
         if next_row[sp2+'_start'] < (row[sp2+'_stop'] - len_bp):
             the_list.append(row)
             the_list.append(next_row)
-        if next_row[sp1+'_start'] > (row[sp1+'_stop'] + len_bp):
-            the_list.append(row)
-            the_list.append(next_row)
-        if next_row[sp1+'_start'] < (row[sp1+'_stop'] - len_bp):
-            the_list.append(row)
-            the_list.append(next_row)
         if next_row[sp2+'_stop'] > (row[sp2+'_start'] + len_bp):
             the_list.append(row)
             the_list.append(next_row)
@@ -81,13 +78,28 @@ for k in chromosome_pairs:
         if next_row[sp2+'_start'] > (row[sp2+'_stop'] + len_bp):
             the_list.append(row)
             the_list.append(next_row)
-        # if row[sp2+'_stop'] < (next_row[sp2+'_start'] - len_bp):
+        if next_row[sp1+'_start'] > (row[sp1+'_stop'] + len_bp):
+            the_list.append(row)
+            the_list.append(next_row)
+        if next_row[sp1+'_start'] < (row[sp1+'_stop'] - len_bp):
+            the_list.append(row)
+            the_list.append(next_row)
+        # if next_row[sp1+'_start'] > (row[sp1+'_stop'] + len_bp):
         #     the_list.append(row)
         #     the_list.append(next_row)
-        # if next_row[sp1+'_stop'] > (row[sp1+'_stop'] + len_bp):
+        # if next_row[sp1+'_start'] > (row[sp1+'_start'] + len_bp):
         #     the_list.append(row)
         #     the_list.append(next_row)
-        # if next_row[sp1+'_start'] < (row[sp1+'_start'] - len_bp):
+        # if next_row[sp1+'_start'] < (row[sp1+'_stop'] - len_bp):
+        #     the_list.append(row)
+        #     the_list.append(next_row)
+        # if next_row[sp1+'_stop'] > (row[sp1+'_start'] + len_bp):
+        #     the_list.append(row)
+        #     the_list.append(next_row)
+        # if next_row[sp1+'_start'] > (row[sp1+'_start'] + len_bp):
+        #     the_list.append(row)
+        #     the_list.append(next_row)
+        # if next_row[sp1+'_start'] > (row[sp1+'_stop'] + len_bp):
         #     the_list.append(row)
         #     the_list.append(next_row)
                 
@@ -101,37 +113,41 @@ for k in chromosome_pairs:
     #make it with lines
     #draw vertical/horizontal axis with breakpoints
     #generate a figure and axis object
-    
+    #I wrote this incredibly complicated part just to make sure that
+    #it's plotted properly according to the relative orientation- without it looks strange
     fig, ax = plt.subplots(figsize=(10, 10))
-    x_values = []
-    y_values = []
+    list_pos_rel_ori=[]
+    list_neg_rel_ori=[]
     
     for i in range(len(pair_dataframe)):
         row = pair_dataframe.iloc[i]
         if row['relative_orientation'] == '+':
-            x1_values = [row[sp1+'_start'], row[sp1+'_stop']]
-            y1_values = [row[sp2+'_start'], row[sp2+'_stop']]
-            x_values.append(x1_values)
-            y_values.append(y1_values)
+            list_pos_rel_ori.append(row)
         else:
-            x2_values = [row[sp1+'_stop'], row[sp1+'_start']]
-            y2_values = [row[sp2+'_start'], row[sp2+'_stop']]
-            x_values.append(x2_values)
-            y_values.append(y2_values)
-    
-    plt.plot(x_values, y_values, 'b', linestyle="solid")
-
+            list_neg_rel_ori.append(row)
+    positive_table=pd.concat(list_pos_rel_ori, axis=1)
+    positive_table= positive_table.transpose()
+    x1_values=[positive_table[sp1+'_start'], positive_table[sp1+'_stop']]
+    y1_values=[positive_table[sp2+'_start'], positive_table[sp2+'_stop']]
+    negative_table=pd.concat(list_neg_rel_ori, axis=1)
+    negative_table= negative_table.transpose()
+    x2_values=[negative_table[sp1+'_stop'], negative_table[sp1+'_start']]
+    y2_values=[negative_table[sp2+'_start'], negative_table[sp2+'_stop']]
+    plt.plot(x1_values, y1_values, 'r', linestyle="solid")
+    plt.plot(x2_values, y2_values, 'b', linestyle="solid")
     # # connect adjacent points with lines
     # for i in range(len(pair_dataframe)-1):
     #     row=pair_dataframe.iloc[i]
     #     ax.plot(row[sp1+'_start'], row[sp2+'_stop'], 'k-', alpha=0.5)
-        
-    ylim = ax.get_ylim()    
+    breakp=[]           
     for i in range(len(pair_dataframe)):
         row = pair_dataframe.iloc[i]
         #z=(row[sp1+'_start'])/(row[sp1+'_chr_size'])
         if row['breakpoints']:
             ax.scatter(row[sp1+'_start'], row[sp2+'_stop'], color='r')
+            breakp.append('yes')
+    print(k+' vs '+chromosome_pairs[k])
+    print(len(breakp)/2+1)
         #plt.axvline(x=row[sp2+'_start'], ymin = (z-0.03), ymax = (z+0.03), color = "red", linewidth=0.5)
 # for i in range(len(plotdf)):
 #       row=plotdf.iloc[i]
@@ -150,28 +166,12 @@ for k in chromosome_pairs:
     # formatter = ticker.ScalarFormatter(useMathText=True)
     # formatter.set_powerlimits((-3, 4))  # Set the exponent range to show
     # ax.xaxis.set_major_formatter(formatter)
-    ax.set_xlabel('Octopus bimaculoides')
-    ax.set_ylabel('Octopus vulgaris')
+    ax.set_xlabel('Octopus bimaculoides chromosome '+k)
+    ax.set_ylabel('Octopus vulgaris chromosome '+chromosome_pairs[k])
     ax.set_title('Chromosome '+k+' vs chromosome '+chromosome_pairs[k])
     
     plt.show()
 
-#plt.axvline(x=39786979, ymin = 0.20, ymax = 0.30, color = "red", linewidth=0.5)
-# z= (39756707/225692979)
-# plt.axvline(x=39756707, ymin = (z-0.08), ymax = (z+0.04), color = "red", linewidth=0.5)
-# for l in range(len(sp1_to_sp2_final_table)):
-#     row = sp1_to_sp2_final_table.iloc[l]
-#     z=(row['col4'])/(row['col2'])
-#     plt.axvline(x=row['col4'], ymin = (z-0.04), ymax = (z+0.03), color = "red", linewidth=0.5)
-    
-        #plt.vlines(row[sp1+'_start'] & row['col4'], ymin=0, ymax= row['col4'].max(), colors=None, linestyles='solid', label='')
-# # ax.scatter(sp1_to_sp2['col4'], sp1_to_sp2[sp2+'_stop'], alpha=0.5)
-# # ax.set_xlim(0, plotdf[sp2+'_start'].max())
-# # ax.set_ylim(0, plotdf[sp2+'_stop'].max())
-# # for i in range(len(plotdf)-1):
-# #     row=plotdf.iloc[i]
-# #     if plotdf[row,'breakpoints']==True:
-# #       plt.axvline(x=plotdf[sp1+'_start'] & plotdf[sp2+'_stop'], ymin = 0, ymax = plotdf[sp2+'_start'].max(), color = "red")
 
 
 
