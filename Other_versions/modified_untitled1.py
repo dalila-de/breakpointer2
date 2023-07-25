@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 To be written
 use this code to get the scaffold names for the assemblies: grep '^>' fin_oct_vulg_30_scaff.fa | sed -E 's/^[[:space:]]*[^[:space:]]+/&,/' | sed 's/>//g' | sed 's/[^[:space:],]\+/"&"/g' | tr '\n' ' '
@@ -7,38 +8,38 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import statistics
-import argparse
-import matplotlib
+# import argparse
+#from mlxtend.evaluate import permutation_test
+#from scipy.stats import ttest_ind
 
-parser =argparse.ArgumentParser(description='This script does things')
-parser.add_argument('input_paf', help='This is the alignment file')
-parser.add_argument('input_ins_score_sp1', help= 'FAN-C insulation score for sp1')
-parser.add_argument('input_ins_score_sp2', help= 'FAN-C insulation score for sp2')
-parser.add_argument('sp1', help = 'species 1 in .paf file')
-parser.add_argument('sp2', help = 'species 2 in .paf file')
-parser.add_argument('len_co', help='minimum alignment length to be kept', default=100000)
-parser.add_argument('len_bp', help = 'distance needed to call a break', default=5000000)
-parser.add_argument('q', help = 'quality cutoff value', default=30)
-parser.add_argument('num_rounds', help='number of permutations for one-tailed permutation test', default=100000)
-parser.add_argument('output_fin_tab', help='Overall table')
-args = parser.parse_args()
-matplotlib.use('Agg')
+# parser =argparse.ArgumentParser(description='This script does things')
+# parser.add_argument('input_paf', help='This is the alignment file')
+# parser.add_argument('input_ins_score_sp1', help= 'FAN-C insulation score for sp1')
+# parser.add_argument('input_ins_score_sp2', help= 'FAN-C insulation score for sp2')
+# parser.add_argument('output_fin_tab', help='Overall table')
+# args = parser.parse_args()
 #write the name of the query species in the alignment
-sp1 = args.sp1
+sp1 = 'Osin'
 #write the name of the reference species in the alignment
-sp2 = args.sp2
+sp2 = 'Ovu'
 #Write the alignment length cutoff for the table filtering
 #len_co = 10000
 #works for sinensis and bimac
-len_co= args.len_co
+len_co= 100000
 #Write the quality cutoff for the alignments
-q = args.q
+q = 30
 #Write what's the distance between two ends of the aligned fragments to call it a breakpoint
-len_bp = args.len_bp
+len_bp = 5000000
 #set the number of permutations
-num_rounds=args.num_rounds
+num_rounds=100
+# define a custom function to perform the permutation test
 
-os.chdir(os.path.dirname(os.path.realpath('cool_breakpointer_code.py')))
+
+#EBR=evolutionary breakpoints
+#make sure to know where you're working, can be modified later as an input
+os.chdir(r'/Users/dalilad/Desktop/The_octopus_code/breakpointer2-main')
+#os.chdir(r'/Users/dalilad/Desktop/The_octopus_code')
+#print (os.getcwd())
 
 #to disable the warning when adding the breakpoints column to the original dataframe
 pd.options.mode.chained_assignment = None
@@ -46,8 +47,8 @@ pd.options.mode.chained_assignment = None
 #The .paf file part, aka the analysis of the breakpoints in genome-genome alignments
 
 #This part reads in the .paf file as Pandas DataFrame
-sp1_to_sp2= pd.read_csv(args.input_paf, delimiter='\t', header=None, names= [sp1+'_chr',sp1+'_chr_size',sp1+'_start',sp1+'_stop','relative_orientation',sp2+'_chr',sp2+'_chr_size',sp2+'_start',sp2+'_stop','nmatch','alen','qual_score','col12','col13','col14','col15','col16','col17','col18'])
-
+# sp1_to_sp2= pd.read_csv(args.input_paf, delimiter='\t', header=None, names= [sp1+'_chr',sp1+'_chr_size',sp1+'_start',sp1+'_stop','relative_orientation',sp2+'_chr',sp2+'_chr_size',sp2+'_start',sp2+'_stop','nmatch','alen','qual_score','col12','col13','col14','col15','col16','col17','col18'])
+sp1_to_sp2= pd.read_csv('sinensis_to_vulgaris.paf', delimiter='\t', header=None, names= [sp1+'_chr',sp1+'_chr_size',sp1+'_start',sp1+'_stop','relative_orientation',sp2+'_chr',sp2+'_chr_size',sp2+'_start',sp2+'_stop','nmatch','alen','qual_score','col12','col13','col14','col15','col16','col17','col18'])
 #The .paf file has some extra columns which are unnecessary, so this line removes them
 sp1_to_sp2= sp1_to_sp2.drop(['col12','col13','col14','col15','col16','col17','col18'], axis =1)
 
@@ -64,25 +65,27 @@ sp1_to_sp2 = sp1_to_sp2.drop(['index'], axis=1)
 #since the vulg has been named according to it's homology with bimac, i can just use that, however, it would be better to have it automated and usable for wider type of datasets
 #got an idea from here: https://www.geeksforgeeks.org/python-convert-two-lists-into-a-dictionary/
 #bimac
-dict_key=["CM046601.1", "CM046602.1", "CM046603.1", "CM046604.1", "CM046605.1", "CM046606.1", "CM046607.1", "CM046608.1", "CM046609.1", "CM046610.1", "CM046611.1", "CM046612.1", "CM046613.1", "CM046614.1", "CM046615.1", "CM046616.1", "CM046617.1", "CM046618.1", "CM046619.1", "CM046620.1", "CM046621.1", "CM046622.1", "CM046623.1", "CM046624.1", "CM046625.1", "CM046626.1", "CM046627.1", "CM046628.1", "CM046629.1", "CM046630.1"]
+#dict_key=["CM046601.1", "CM046602.1", "CM046603.1", "CM046604.1", "CM046605.1", "CM046606.1", "CM046607.1", "CM046608.1", "CM046609.1", "CM046610.1", "CM046611.1", "CM046612.1", "CM046613.1", "CM046614.1", "CM046615.1", "CM046616.1", "CM046617.1", "CM046618.1", "CM046619.1", "CM046620.1", "CM046621.1", "CM046622.1", "CM046623.1", "CM046624.1", "CM046625.1", "CM046626.1", "CM046627.1", "CM046628.1", "CM046629.1", "CM046630.1"]
 #sinensis
-#dict_key=["NC_042997.1", "NC_042998.1", "NC_042999.1", "NC_043000.1", "NC_043001.1", "NC_043002.1", "NC_043003.1", "NC_043004.1", "NC_043005.1", "NC_043006.1", "NC_043007.1", "NC_043008.1", "NC_043009.1", "NC_043010.1", "NC_043011.1", "NC_043012.1", "NC_043013.1", "NC_043015.1", "NC_043016.1", "NC_043017.1", "NC_043018.1", "NC_043019.1", "NC_043020.1", "NC_043021.1", "NC_043022.1", "NC_043023.1", "NC_043024.1", "NC_043025.1", "NC_043026.1"]
+dict_key=["NC_042997.1", "NC_042998.1", "NC_042999.1", "NC_043000.1", "NC_043001.1", "NC_043002.1", "NC_043003.1", "NC_043004.1", "NC_043005.1", "NC_043006.1", "NC_043007.1", "NC_043008.1", "NC_043009.1", "NC_043010.1", "NC_043011.1", "NC_043012.1", "NC_043013.1", "NC_043015.1", "NC_043016.1", "NC_043017.1", "NC_043018.1", "NC_043019.1", "NC_043020.1", "NC_043021.1", "NC_043022.1", "NC_043023.1", "NC_043024.1", "NC_043025.1", "NC_043026.1"]
 #dict_key = ["LG01", "LG02", "LG03", "LG04", "LG05", "LG06", "LG07", "LG08", "LG09", "LG10", "LG11", "LG12", "LG13", "LG14", "LG15", "LG16", "LG17", "LG18", "LG19", "LG20", "LG21", "LG22", "LG23", "LG24", "LG25", "LG26", "LG27"]#, "LG28", "LG29", "LG30"]
 #vulgris for amphi
 #dict_value =["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu10", "Ovu09", "Ovu08", "Ovu11", "Ovu12", "Ovu14", "Ovu13", "Ovu19", "Ovu18", "Ovu17", "Ovu15", "Ovu20", "Ovu23", "Ovu22", "Ovu16", "Ovu21", "Ovu25", "Ovu26"]#, "Ovu29", "Ovu27", "Ovu30", "Ovu28"]
 #vulgaris for sinensis
-#dict_value = ["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu08", "Ovu10", "Ovu09", "Ovu11", "Ovu12", "Ovu13", "Ovu14", "Ovu18", "Ovu15", "Ovu17", "Ovu19", "Ovu16", "Ovu21", "Ovu22", "Ovu23", "Ovu24", "Ovu25", "Ovu26", "Ovu29", "Ovu27", "Ovu30", "Ovu28"]
+dict_value = ["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu08", "Ovu10", "Ovu09", "Ovu11", "Ovu12", "Ovu13", "Ovu14", "Ovu18", "Ovu15", "Ovu17", "Ovu19", "Ovu16", "Ovu21", "Ovu22", "Ovu23", "Ovu24", "Ovu25", "Ovu26", "Ovu29", "Ovu27", "Ovu30", "Ovu28"]
 #vulgaris for bimac
-dict_value=["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu08", "Ovu09", "Ovu10", "Ovu11", "Ovu12", "Ovu13", "Ovu14", "Ovu15", "Ovu16", "Ovu17", "Ovu18", "Ovu19", "Ovu20", "Ovu21", "Ovu22", "Ovu23", "Ovu24", "Ovu25", "Ovu26", "Ovu27", "Ovu28", "Ovu29", "Ovu30"]
+#dict_value=["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu08", "Ovu09", "Ovu10", "Ovu11", "Ovu12", "Ovu13", "Ovu14", "Ovu15", "Ovu16", "Ovu17", "Ovu18", "Ovu19", "Ovu20", "Ovu21", "Ovu22", "Ovu23", "Ovu24", "Ovu25", "Ovu26", "Ovu27", "Ovu28", "Ovu29", "Ovu30"]
 chromosome_pairs = dict(zip(dict_key, dict_value))
 
 #.gff or .bed file part
 # 100kb windows for .bed
 #try to plot 5k thing on the HiGlass for example
-bimac_insul_sc_500kb = pd.read_csv(args.input_ins_score_sp1, delimiter='\t', header= None, names=[sp1+'_chr', sp1+'_start',sp1+'_stop', 'irrel1', 'insul_score','irrel2'])
+# bimac_insul_sc_500kb = pd.read_csv(args.input_ins_score_sp1, delimiter='\t', header= None, names=[sp1+'_chr', sp1+'_start',sp1+'_stop', 'irrel1', 'insul_score','irrel2'])
+bimac_insul_sc_500kb = pd.read_csv('oct_sinensis_normalized_balanced.hic_500kb.bed', delimiter='\t', header= None, names=[sp1+'_chr', sp1+'_start',sp1+'_stop', 'irrel1', 'insul_score','irrel2'])
 bimac_insul_sc_500kb = bimac_insul_sc_500kb.dropna().drop(['irrel1','irrel2'], axis=1)
 
-vulg_insul_sc_500kb = pd.read_csv(args.input_ins_score_sp2, delimiter='\t', header= None, names=[sp2+'_chr', sp2+'_start',sp2+'_stop', 'irrel1', 'insul_score','irrel2'])
+# vulg_insul_sc_500kb = pd.read_csv(args.input_ins_score_sp2, delimiter='\t', header= None, names=[sp2+'_chr', sp2+'_start',sp2+'_stop', 'irrel1', 'insul_score','irrel2'])
+vulg_insul_sc_500kb = pd.read_csv('fin_oct_vulg_500kb.bed', delimiter='\t', header= None, names=[sp2+'_chr', sp2+'_start',sp2+'_stop', 'irrel1', 'insul_score','irrel2'])
 vulg_insul_sc_500kb = vulg_insul_sc_500kb.dropna().drop(['irrel1','irrel2'], axis=1)
 
 """
@@ -312,9 +315,9 @@ for i in species_list:
             
             globals()[pairs] = globals()[pairs].sort_values([i+'_chr',i+'_start',i+'_stop'])
             if i ==sp1:
-               breakpoints_sp1, globals()[pairs] = insul_score_sp(globals()[pairs], sp2_insul_k,sp2)
+               breakpoints_sp2, globals()[pairs] = insul_score_sp(globals()[pairs], sp2_insul_k,sp2)
             else:
-               breakpoints_sp2, globals()[pairs] = insul_score_sp(globals()[pairs], sp1_insul_k,sp1)
+               breakpoints_sp1, globals()[pairs] = insul_score_sp(globals()[pairs], sp1_insul_k,sp1)
                
             globals()[pairs] = globals()[pairs].sort_values([i+'_chr',i+'_start',i+'_stop'])
             
@@ -392,9 +395,24 @@ for i in species_list:
     insul_table_sp2 = flatten(insul_table_sp2)
     fig, ax, stats_df = permut_test_histogram(final_insul_list_sp2, insul_table_sp2, sp2)
     overall_res = pd.concat([stats_df, overall_res])
-pairs_dataframe_fin_sp1.to_csv(args.output_fin_tab)
+    breakpoints_fin_sp1 = breakpoints_fin_sp1.reset_index().drop(['index'], axis=1)
+    if i == sp1:
+        for g in range(len(breakpoints_fin_sp1)):
+            row = breakpoints_fin_sp1.iloc[g]
+            if row[i+'_start'] > row[i+'_stop']:
+                breakpoints_fin_sp1.at[g, i+'_stop'], breakpoints_fin_sp1.at[g, i+'_start'] = row[i+'_start'], row[i+'_stop']
+    #     for z, row in breakpoints_fin_sp1.iterrows():
+    #         if row[i+'_start'] > row[i+'_stop']:
+    #             breakpoints_fin_sp1.at[z, i+'_stop'], breakpoints_fin_sp1.at[z, i+'_start'] = row[i+'_start'], row[i+'_stop']
+    #         else:
+    #             continue
+    # if i == sp2:
+    #     for z, row in breakpoints_fin_sp2.iterrows():
+    #         if row[i+'_start'] > row[i+'_stop']:
+    #             breakpoints_fin_sp2.at[z, i+'_stop'], breakpoints_fin_sp2.at[z, i+'_start'] = row[i+'_start'], row[i+'_stop']
+#pairs_dataframe_fin_sp1.to_csv(args.output_fin_tab)
 stats_df_sp1.drop_duplicates(subset=['Chromosome'], keep='first').to_csv('sp1_stats')
 stats_df_sp2.drop_duplicates(subset=['Chromosome'], keep='first').to_csv('sp2_stats')
 overall_res.to_csv('overall_res')
-breakpoints_fin_sp1.to_csv('sp1_breakp.bed', sep = '\t')
-breakpoints_fin_sp2.to_csv('sp2_breakp.bed', sep = '\t')
+breakpoints_fin_sp1.to_csv('sp1_breakp.bed', sep = '\t', header = False)
+breakpoints_fin_sp2.to_csv('sp2_breakp.bed', sep = '\t', header = False)
