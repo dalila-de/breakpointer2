@@ -1,6 +1,9 @@
 """
-To be written
-use this code to get the scaffold names for the assemblies: grep '^>' fin_oct_vulg_30_scaff.fa | sed -E 's/^[[:space:]]*[^[:space:]]+/&,/' | sed 's/>//g' | sed 's/[^[:space:],]\+/"&"/g' | tr '\n' ' '
+Breakpointer2.py is a script that uses the output of the .paf alignments and the FAN-C insulation score files
+to detect breakpoints in the genome-genome alignments (species-species comparison).
+The script is written for the Octopus vulgaris and Octopus bimaculoides genome assemblies, but can be used for other species as well.
+
+To get the scaffold names for the assemblies: grep '^>' chr_scale_genome.fasta | sed -E 's/^[[:space:]]*[^[:space:]]+/&,/' | sed 's/>//g' | sed 's/[^[:space:],]\+/"&"/g' | tr '\n' ' '
 """
 import pandas as pd
 import os
