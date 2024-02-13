@@ -63,21 +63,78 @@ sp1_to_sp2 = sp1_to_sp2[(sp1_to_sp2.alen > len_co) & (sp1_to_sp2.qual_score > q)
 sp1_to_sp2 = sp1_to_sp2.reset_index()
 
 sp1_to_sp2 = sp1_to_sp2.drop(['index'], axis=1)
-#Now I want to make a dictionary of homologous chromosomes
-#since the vulg has been named according to it's homology with bimac, i can just use that, however, it would be better to have it automated and usable for wider type of datasets
-#got an idea from here: https://www.geeksforgeeks.org/python-convert-two-lists-into-a-dictionary/
-#bimac
-dict_key=["CM046601.1", "CM046602.1", "CM046603.1", "CM046604.1", "CM046605.1", "CM046606.1", "CM046607.1", "CM046608.1", "CM046609.1", "CM046610.1", "CM046611.1", "CM046612.1", "CM046613.1", "CM046614.1", "CM046615.1", "CM046616.1", "CM046617.1", "CM046618.1", "CM046619.1", "CM046620.1", "CM046621.1", "CM046622.1", "CM046623.1", "CM046624.1", "CM046625.1", "CM046626.1", "CM046627.1", "CM046628.1", "CM046629.1", "CM046630.1"]
-#sinensis
-#dict_key=["NC_042997.1", "NC_042998.1", "NC_042999.1", "NC_043000.1", "NC_043001.1", "NC_043002.1", "NC_043003.1", "NC_043004.1", "NC_043005.1", "NC_043006.1", "NC_043007.1", "NC_043008.1", "NC_043009.1", "NC_043010.1", "NC_043011.1", "NC_043012.1", "NC_043013.1", "NC_043015.1", "NC_043016.1", "NC_043017.1", "NC_043018.1", "NC_043019.1", "NC_043020.1", "NC_043021.1", "NC_043022.1", "NC_043023.1", "NC_043024.1", "NC_043025.1", "NC_043026.1"]
-#dict_key = ["LG01", "LG02", "LG03", "LG04", "LG05", "LG06", "LG07", "LG08", "LG09", "LG10", "LG11", "LG12", "LG13", "LG14", "LG15", "LG16", "LG17", "LG18", "LG19", "LG20", "LG21", "LG22", "LG23", "LG24", "LG25", "LG26", "LG27"]#, "LG28", "LG29", "LG30"]
-#vulgris for amphi
-#dict_value =["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu10", "Ovu09", "Ovu08", "Ovu11", "Ovu12", "Ovu14", "Ovu13", "Ovu19", "Ovu18", "Ovu17", "Ovu15", "Ovu20", "Ovu23", "Ovu22", "Ovu16", "Ovu21", "Ovu25", "Ovu26"]#, "Ovu29", "Ovu27", "Ovu30", "Ovu28"]
-#vulgaris for sinensis
-#dict_value = ["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu08", "Ovu10", "Ovu09", "Ovu11", "Ovu12", "Ovu13", "Ovu14", "Ovu18", "Ovu15", "Ovu17", "Ovu19", "Ovu16", "Ovu21", "Ovu22", "Ovu23", "Ovu24", "Ovu25", "Ovu26", "Ovu29", "Ovu27", "Ovu30", "Ovu28"]
-#vulgaris for bimac
-dict_value=["Ovu01", "Ovu02", "Ovu03", "Ovu04", "Ovu05", "Ovu06", "Ovu07", "Ovu08", "Ovu09", "Ovu10", "Ovu11", "Ovu12", "Ovu13", "Ovu14", "Ovu15", "Ovu16", "Ovu17", "Ovu18", "Ovu19", "Ovu20", "Ovu21", "Ovu22", "Ovu23", "Ovu24", "Ovu25", "Ovu26", "Ovu27", "Ovu28", "Ovu29", "Ovu30"]
-chromosome_pairs = dict(zip(dict_key, dict_value))
+
+
+# Group by pairs in the alignment and sum up the alignment lengths
+summed_df_sp1 = sp1_to_sp2_hm.groupby([sp1+'_chr', sp2+'_chr'])['alen'].sum().reset_index()
+summed_df_sp2 = sp1_to_sp2_hm.groupby([sp2+'_chr', sp1+'_chr'])['alen'].sum().reset_index()
+
+
+#This part finds the homologous chromosome pairs in two species
+def homologous_pairs(summed_df_sp1, sp1, sp2, table_of_homologous_pairs):
+    
+    dfs = []
+
+    # Iterate over each unique value for sp1+'_chr'
+    for chr1_value in summed_df_sp1[sp1+'_chr'].unique():
+
+        # Filter for the current sp1+chr1 value
+        chr1_df = summed_df_sp1[summed_df_sp1[sp1+'_chr'] == chr1_value]
+
+        # Find the row with the maximum alignment length
+        max_pair = chr1_df.loc[chr1_df['alen'].idxmax()]
+
+        # Sum alignment lengths for all other pairs
+        other_entries_sum = chr1_df[chr1_df[sp2+'_chr'] != max_pair[sp2+'_chr']]['alen'].sum()
+
+        # Append a new DataFrame to the list
+        dfs.append(pd.DataFrame({
+            'Chr1': [max_pair[sp1+'_chr']],
+            'Chr2': [max_pair[sp2+'_chr']],
+            'Max alignment length': [max_pair['alen']],
+            'Sum of other entries': [other_entries_sum]
+        }))
+
+    # Concatenate DataFrames in the list
+    table_of_homologous_pairs = pd.concat(dfs, ignore_index=True)
+
+    return table_of_homologous_pairs
+
+
+# Process the data using the function
+
+result_df1 = pd.DataFrame()
+result_df2 = pd.DataFrame()
+result_df1 = homologous_pairs(summed_df_sp1, sp1, sp2, result_df1)
+result_df2 = homologous_pairs(summed_df_sp2, sp2, sp1, result_df2)
+
+for index,row in result_df1.iterrows():
+    chr1 = row['Chr1']
+    chr2 = row['Chr2']
+    max_alignment_df1 = row['Max alignment length']
+    sum_other_df1 = row['Sum of other entries']
+    max_alignment_df2 = result_df2.loc[(result_df2['Chr1'] == chr2) & (result_df2['Chr2'] == chr1), 'Max alignment length'].values[0]
+    sum_other_df2 = result_df2.loc[(result_df2['Chr1'] == chr2) & (result_df2['Chr2'] == chr1), 'Sum of other entries'].values[0]
+    # Calculate the sum of all other entries in 'Max alignment length' column
+    sum_max_alignment_other = result_df1[result_df1['Chr1'] != chr1]['Max alignment length'].sum()
+    # Calculate the sum of all other entries in 'Sum of other entries' column
+    sum_sum_other_other = result_df1[result_df1['Chr1'] != chr1]['Sum of other entries'].sum()
+    other_to_other= sum_max_alignment_other + sum_sum_other_other
+    # Construct the contingency matrix
+    contingency_matrix = [[max_alignment_df1, sum_other_df1], [sum_other_df2, other_to_other]]
+    #print(contingency_matrix)
+    #Uncomment to check if the cotigency matrix is correct
+    #df_contingency = pd.DataFrame(contingency_matrix, columns = [chr2, 'Other chromosomes'], index = [chr1, 'Other chromosomes'])
+    #print(df_contingency)   
+    # Perform Fisher's exact test
+    #odds_ratio, p_value = fisher_exact(contingency_matrix)
+    #print(f"Fisher's exact test for pair {chr1} and {chr2}:")
+    #print(f"Odds ratio: {odds_ratio}")
+    #print(f"P-value: {p_value}\n")
+#Make a dictionary of homologous chromosomes
+list_sp1 = result_df1['Chr1'].tolist()
+list_sp2 = result_df1['Chr2'].tolist()
+chromosome_pairs = dict(zip(list_sp1, list_sp2))
 
 #.gff or .bed file part
 # 100kb windows for .bed
