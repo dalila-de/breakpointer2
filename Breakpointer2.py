@@ -12,6 +12,7 @@ import numpy as np
 import statistics
 import argparse
 import matplotlib
+from scipy.stats import fisher_exact
 
 parser =argparse.ArgumentParser(description='This script uses the output of the .paf alignments and the FAN-C insulation score files to detect breakpoints in the genome-genome alignments (species-species comparison')
 parser.add_argument('input_paf', help='This is the alignment file')
@@ -33,13 +34,13 @@ sp2 = args.sp2
 #Write the alignment length cutoff for the table filtering
 #len_co = 10000
 #works for sinensis and bimac
-len_co= args.len_co
+len_co= int(args.len_co)
 #Write the quality cutoff for the alignments
-q = args.q
+q = int(args.q)
 #Write what's the distance between two ends of the aligned fragments to call it a breakpoint
-len_bp = args.len_bp
+len_bp = int(args.len_bp)
 #set the number of permutations
-num_rounds=args.num_rounds
+num_rounds=int(args.num_rounds)
 
 os.chdir(os.path.dirname(os.path.realpath('cool_breakpointer_code.py')))
 
