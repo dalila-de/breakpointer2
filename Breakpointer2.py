@@ -64,7 +64,7 @@ sp1_to_sp2 = sp1_to_sp2.reset_index()
 
 sp1_to_sp2 = sp1_to_sp2.drop(['index'], axis=1)
 
-
+sp1_to_sp2_hm = sp1_to_sp2[[sp1+'_chr', sp2+'_chr', 'alen']]
 # Group by pairs in the alignment and sum up the alignment lengths
 summed_df_sp1 = sp1_to_sp2_hm.groupby([sp1+'_chr', sp2+'_chr'])['alen'].sum().reset_index()
 summed_df_sp2 = sp1_to_sp2_hm.groupby([sp2+'_chr', sp1+'_chr'])['alen'].sum().reset_index()
@@ -101,39 +101,52 @@ def homologous_pairs(summed_df_sp1, sp1, sp2, table_of_homologous_pairs):
     return table_of_homologous_pairs
 
 
-# Process the data using the function
+# Use the function to get the homologous pairs
 
 result_df1 = pd.DataFrame()
 result_df2 = pd.DataFrame()
 result_df1 = homologous_pairs(summed_df_sp1, sp1, sp2, result_df1)
 result_df2 = homologous_pairs(summed_df_sp2, sp2, sp1, result_df2)
 
-for index,row in result_df1.iterrows():
-    chr1 = row['Chr1']
-    chr2 = row['Chr2']
-    max_alignment_df1 = row['Max alignment length']
-    sum_other_df1 = row['Sum of other entries']
-    max_alignment_df2 = result_df2.loc[(result_df2['Chr1'] == chr2) & (result_df2['Chr2'] == chr1), 'Max alignment length'].values[0]
-    sum_other_df2 = result_df2.loc[(result_df2['Chr1'] == chr2) & (result_df2['Chr2'] == chr1), 'Sum of other entries'].values[0]
-    # Calculate the sum of all other entries in 'Max alignment length' column
-    sum_max_alignment_other = result_df1[result_df1['Chr1'] != chr1]['Max alignment length'].sum()
-    # Calculate the sum of all other entries in 'Sum of other entries' column
-    sum_sum_other_other = result_df1[result_df1['Chr1'] != chr1]['Sum of other entries'].sum()
-    other_to_other= sum_max_alignment_other + sum_sum_other_other
-    # Construct the contingency matrix
-    contingency_matrix = [[max_alignment_df1, sum_other_df1], [sum_other_df2, other_to_other]]
-    #print(contingency_matrix)
-    #Uncomment to check if the cotigency matrix is correct
-    #df_contingency = pd.DataFrame(contingency_matrix, columns = [chr2, 'Other chromosomes'], index = [chr1, 'Other chromosomes'])
-    #print(df_contingency)   
-    # Perform Fisher's exact test
-    #odds_ratio, p_value = fisher_exact(contingency_matrix)
-    #print(f"Fisher's exact test for pair {chr1} and {chr2}:")
-    #print(f"Odds ratio: {odds_ratio}")
-    #print(f"P-value: {p_value}\n")
-#Make a dictionary of homologous chromosomes
+#Now get statistical support for the pairs found above
+#Fisher's exact test    
+#We have to normalize the counts by dividing the number of bases by 10^x (huge numbers)
+count_normalization = [10000,100000,1000000]
+    
+for x in count_normalization:
+    FET_x = format("FET_test_normalized_%s" % x)
+    df = []
+    globals()[FET_x] = pd.DataFrame()
+    for index,row in result_df1.iterrows():
+        chr1 = row['Chr1']
+        chr2 = row['Chr2']
+        max_alignment_df1 = row['Max alignment length']
+        sum_other_df1 = row['Sum of other entries']
+        max_alignment_df2 = result_df2.loc[(result_df2['Chr1'] == chr2) & (result_df2['Chr2'] == chr1), 'Max alignment length'].values[0]
+        sum_other_df2 = result_df2.loc[(result_df2['Chr1'] == chr2) & (result_df2['Chr2'] == chr1), 'Sum of other entries'].values[0]
+        # Calculate the sum of all other entries in 'Max alignment length' column
+        sum_max_alignment_other = result_df1[result_df1['Chr1'] != chr1]['Max alignment length'].sum()
+        # Calculate the sum of all other entries in 'Sum of other entries' column
+        sum_sum_other_other = result_df1[result_df1['Chr1'] != chr1]['Sum of other entries'].sum()
+        #As the number of total bases becomes insane, maybe divide it by the number of chromosomes?
+        other_to_other= (sum_max_alignment_other + sum_sum_other_other)/len(result_df1)
+
+        # Construct the contingency matrix
+        contingency_matrix = [[int(max_alignment_df1/x+x/x), int(sum_other_df1/x +x/x)], [int(sum_other_df2/x+x/x), int(other_to_other/x+x/x)]]
+        df_contingency = pd.DataFrame(contingency_matrix, columns = [chr2, 'Other chromosomes'], index = [chr1, 'Other chromosomes'])
+        #print(df_contingency)
+        #print(x)   
+        # Perform Fisher's exact test
+        odds_ratio, p_value = fisher_exact(contingency_matrix)
+        #Bonferonni correction for FET, 4 tests are performed, because 2x2 contingency matrix is used
+        p_adj = p_value*4
+        df.append(pd.DataFrame({'Chr1': [chr1], 'Chr2': [chr2], 'Odds ratio': [odds_ratio], 'P-value': [p_value], 'P-value adj': [p_adj], 'Normalization factor': [x]}))
+        globals()[FET_x] = pd.concat(df, ignore_index=True)
+    globals()[FET_x].to_csv('FET_normalized_%s.tsv' % x, index=False, sep='\t')
+
 list_sp1 = result_df1['Chr1'].tolist()
 list_sp2 = result_df1['Chr2'].tolist()
+
 chromosome_pairs = dict(zip(list_sp1, list_sp2))
 
 #.gff or .bed file part
