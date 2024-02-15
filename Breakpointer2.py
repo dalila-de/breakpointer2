@@ -13,7 +13,7 @@ import statistics
 import argparse
 import matplotlib
 
-parser =argparse.ArgumentParser(description='This script does things')
+parser =argparse.ArgumentParser(description='This script uses the output of the .paf alignments and the FAN-C insulation score files to detect breakpoints in the genome-genome alignments (species-species comparison')
 parser.add_argument('input_paf', help='This is the alignment file')
 parser.add_argument('input_ins_score_sp1', help= 'FAN-C insulation score for sp1')
 parser.add_argument('input_ins_score_sp2', help= 'FAN-C insulation score for sp2')
