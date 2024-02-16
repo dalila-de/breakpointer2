@@ -42,7 +42,7 @@ len_bp = int(args.len_bp)
 #set the number of permutations
 num_rounds=int(args.num_rounds)
 
-os.chdir(os.path.dirname(os.path.realpath('cool_breakpointer_code.py')))
+os.chdir(os.path.dirname(os.path.realpath('Breakpointer2.py')))
 
 #to disable the warning when adding the breakpoints column to the original dataframe
 pd.options.mode.chained_assignment = None
