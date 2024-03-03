@@ -1,0 +1,11 @@
+#Example config for breakpointer.smk workflow
+
+species:
+  sp1:
+    genome:
+    num_chr:
+  sp2:
+    genome:
+    num_chr:
+
+#breakpointer2 parameters

@@ -1,10 +1,8 @@
 """
 Breakpointer2.py is a script that uses the output of the .paf alignments and the FAN-C insulation score files
 to detect breakpoints in the genome-genome alignments (species-species comparison).
-The script is written for the Octopus vulgaris and Octopus bimaculoides genome assemblies, but can be used for other species as well.
-
-To get the scaffold names for the assemblies: grep '^>' chr_scale_genome.fasta | sed -E 's/^[[:space:]]*[^[:space:]]+/&,/' | sed 's/>//g' | sed 's/[^[:space:],]\+/"&"/g' | tr '\n' ' '
 """
+
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
@@ -424,8 +422,8 @@ for i in species_list:
                     ax.scatter(row[sp1+'_start'], row[sp2+'_stop'], color='r')
             
             ax.ticklabel_format(style='plain', scilimits=(0,0))
-            ax.set_xlabel('Octopus bimaculoides chromosome '+k)
-            ax.set_ylabel('Octopus vulgaris chromosome '+chromosome_pairs[k])
+            ax.set_xlabel(sp1+'_'+k)
+            ax.set_ylabel(sp2+'_'+chromosome_pairs[k])
             ax.set_title('Chromosome '+k+' vs chromosome '+chromosome_pairs[k])
             plt.savefig('comparison_'+k+'.png')
             
