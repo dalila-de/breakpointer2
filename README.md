@@ -7,7 +7,7 @@ Breakpointer2 is a Python3-based program that uses:
 2. information on insulation scores (topological information- as described here https://vaquerizaslab.github.io/fanc/fanc-executable/fanc-analyse-hic/domains.html)
 
 # More details on the program
-The script *Breakpointer2.py* was used to generate data for a Master Thesis available here https://utheses.univie.ac.at/detail/67483.
+The script *Breakpointer2.py* was used to generate data for a Master Thesis available here https://utheses.univie.ac.at/detail/67483. The program is explained in great detail in Chapter 4 *Scale-free investigation of rearrangements in the context of genome topology*.
 
 If you want to generate the files that the script can execute, please run *minimap2* under default parameters (https://github.com/lh3/minimap2), and for the generation of insulation scores refer to the bash script available in the repo (*Generation_of_fanc.sh*).
 
