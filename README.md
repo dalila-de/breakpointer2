@@ -47,6 +47,7 @@ The program was tested and performed analyses for the following genomes: GCF_006
 For that analysis, we picked a reference genome- *Octopus vulgaris* GCA_951406725.2, and aligned it against the other three genomes using Minimap2 v2.24 (H. Li, 2018, 2021).
 
 `minimap2 species1_genome.fasta species2_genome.fasta > species1_species2.paf`
+
 `minimap2 species1_genome.fasta species3_genome.fasta > species1_species3.paf`
 
 ## Generation of insulation score files:
@@ -62,6 +63,7 @@ Steps:
 1. Use Chromap v0.2.3 (H. Zhang et al., 2021) for genome indexing and mapping of Hi-C reads.
 
 `chromap -i -r species1_genome.fasta -o species1_genome.index`
+
 `chromap -t 20 --preset hic -x species1_genome.index -r species1_genome.fasta -1 forward_hic_reads.fastq.gz -2 reverse_hic_reads.fastq.gz -q 0 -o species1_0.pairs`
 
 2. Compress the *.pairs* file using Pairix v0.3.7 (Lee et al., 2022).
@@ -79,9 +81,13 @@ Steps:
 5. This is an optional step. If you wish to visualize the .cool file, you can use HiCExplorer toolkit v3.7.2 (Ramírez et al., 2018; Wolff et al., 2018, 2020), and also generate a normalized and balanced .cool file.
 
 `hicCorrectMatrix diagnostic_plot -m species1.cool -o species1.png`
+
 `hicNormalize -m species1.cool --normalize norm_range -o species_normalized.cool`
+
 `#Here, you use Cooler again to create a balanced matrix`
+
 `cp species1_normalized.cool species1_normalized_balanced.cool`
+
 `cooler balance --force species1_normalized_balanced.cool`
 
 6. Use FAN-C Toolkit (Kruse et al., 2020) to convert the *.cool* files to the compatible format for the downstream analyses.
