@@ -1,4 +1,4 @@
-# Breakpointer2
+# <a name="explanation"></a>Breakpointer2
 
 Breakpointer2 is a program that parses insulation score data relative to chromosomal breakpoints between two closely-related species. This  allows us to explore how fixed rearrangements throughout evolution relate to topological units of the genome and their boundaries (topologically associated domains, TADs) in non-model organisms.
 
@@ -6,7 +6,19 @@ Breakpointer2 is a Python3-based program that uses:
 1. genome-genome alignments of chromosome-scale genomes in .paf format
 2. information on insulation scores (topological information- as described here https://vaquerizaslab.github.io/fanc/fanc-executable/fanc-analyse-hic/domains.html)
 
-# Summary
+#Table of Contents
+- [Breakpointer2](#explanation)
+- [Summary](#quickstart)
+- [System Requirements](#sysreq)
+- [Installation Guide](#instguide)
+- [Detailed Instructions](#detinstru)
+  - [Generation of genome-genome alignments](#gentogen)
+  - [Generation of insulation score files](#insusc)
+  - [Running Breakpointer2](#bp2)
+- [Citation](#citation)
+
+# <a name="quickstart"></a>Summary
+
 The script *Breakpointer2.py* was used to generate data for a Master Thesis available here https://utheses.univie.ac.at/detail/67483. The program is explained in great detail in Chapter 4 *Scale-free investigation of rearrangements in the context of genome topology*.
 
 If you want to generate the files that the script can execute, please run *minimap2* under default parameters (https://github.com/lh3/minimap2), and for the generation of insulation scores refer to the bash script available in the repo (*Generation_of_fanc.sh*).
@@ -26,23 +38,23 @@ To run the script *Breakpointer2.py*, please see the following parameters that s
 The snakemake script (*breakpointer2_v5.smk*) is the latest workflow incorporating this program.
 The goal is to generalize the code and have a workflow generating data for multiple pairwise comparisons simultaneously. The current workflow outputs only the number of inversion events in the pairwise comparison. More than two input species can be used. Future efforts will incorporate insulation score data to infer topological information more broadly across the tree of life.
 
-# System Requirements
+# <a name="sysreq"></a>System Requirements
 
 The Python script *Breakpointer2.py* was tested on MacOS and Oracle Linux 9. The script itself can be run on a personal computer, but to generate the necessary files, one needs a computing cluster.
 
 The script was developed under Python3. Python packages that are required are Pandas v1.5.2. (Team, 2023), Matplotlib v3.6.3.(Hunter, 2007), and numpy v1.24.1. (Harris et al., 2020).
 
-# Installation Guide
+# <a name="instguide"></a>Installation Guide
 
 `git clone https://github.com/dalila-de/breakpointer2.git`
 
 The script in the repository is ready to use as is after cloning.
 
-# Detailed Instructions
+# <a name="detinstru"></a>Detailed Instructions
 
 The program was tested and performed analyses for the following genomes: GCF_006345805.1, GCF_001194135.2, GCA_951406725.2, and https://figshare.com/s/fa09f5dadcd966f020f3.
 
-## Generation of genome-genome alignments:
+## <a name="gentogen"></a>Generation of genome-genome alignments:
 
 For that analysis, we picked a reference genome- *Octopus vulgaris* GCA_951406725.2, and aligned it against the other three genomes using Minimap2 v2.24 (H. Li, 2018, 2021).
 
@@ -50,7 +62,7 @@ For that analysis, we picked a reference genome- *Octopus vulgaris* GCA_95140672
 
 `minimap2 species1_genome.fasta species3_genome.fasta > species1_species3.paf`
 
-## Generation of insulation score files:
+## <a name="insusc"></a>Generation of insulation score files:
 
 Necessary data:
 - Genomes used in the alignments (*.fasta*)
@@ -98,7 +110,7 @@ Steps:
 
 `fanc insulation species1.hic species1.interactions -g -w 100000 250000 500000 750000 1000000 -o bed`
 
-## Running Breakpointer2
+## <a name="bp2"></a>Running Breakpointer2
 
 Now that the alignment (*.paf*) and insulation score files (*.bed*) have been generated, Breakpointer2 can be run on the pairwise data.
 
@@ -111,9 +123,10 @@ A *.bed* file is also generated for the identified breakpoints in each species. 
 
 Future efforts are towards the automatization of quantification of shared and unique breakpoints in the lineages, as viewing the *.bed* files against a reference genome requires manual counting of shared or unique breakpoints.
 
-#Citation
+# <a name="citation"></a>Citation
 
 If you use Breakpointer2 in your work, please cite:
+
 >Schultz, D. T., Blümel, A., Destanović, D., Sarigol, F., & Simakov, O. (2024). Topological mixing and irreversibility in animal chromosome evolution. bioRxiv. https://doi.org/10.1101/2024.07.29.605683
 
 >Destanović, D. (2023). Comparative structural genomics of Octopus (Master's Thesis, University of Vienna). https://doi.org/10.25365/thesis.73889
