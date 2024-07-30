@@ -28,9 +28,9 @@ The goal is to generalize the code and have a workflow generating data for multi
 
 # System Requirements
 
-The Python script *Breakpointer2.py* was tested on MacOS and the Life Science Compute Cluster (LiSC) of the University of Vienna. The script itself can be run on a personal computer, but to generate the necessary files, one needs a computing cluster.
+The Python script *Breakpointer2.py* was tested on MacOS and Oracle Linux 9. The script itself can be run on a personal computer, but to generate the necessary files, one needs a computing cluster.
 
-Python packages that are required are Pandas v1.5.2. (Team, 2023), Matplotlib v3.6.3.(Hunter, 2007), numpy v1.24.1. (Harris et al., 2020), os, and statistics.
+The script was developed under Python3. Python packages that are required are Pandas v1.5.2. (Team, 2023), Matplotlib v3.6.3.(Hunter, 2007), and numpy v1.24.1. (Harris et al., 2020).
 
 # Installation Guide
 
@@ -111,3 +111,9 @@ A *.bed* file is also generated for the identified breakpoints in each species. 
 
 Future efforts are towards the automatization of quantification of shared and unique breakpoints in the lineages, as viewing the *.bed* files against a reference genome requires manual counting of shared or unique breakpoints.
 
+#Citation
+
+If you use Breakpointer2 in your work, please cite:
+>Schultz, D. T., Blümel, A., Destanović, D., Sarigol, F., & Simakov, O. (2024). Topological mixing and irreversibility in animal chromosome evolution. bioRxiv. https://doi.org/10.1101/2024.07.29.605683
+
+>Destanović, D. (2023). Comparative structural genomics of Octopus (Master's Thesis, University of Vienna). https://doi.org/10.25365/thesis.73889
