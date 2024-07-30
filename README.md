@@ -127,6 +127,10 @@ Future efforts are towards the automatization of quantification of shared and un
 
 If you use Breakpointer2 in your work, please cite:
 
->Schultz, D. T., Blümel, A., Destanović, D., Sarigol, F., & Simakov, O. (2024). Topological mixing and irreversibility in animal chromosome evolution. bioRxiv. https://doi.org/10.1101/2024.07.29.605683
+> Schultz, D.T., Blümel, A., Destanović, D., Sarigol, F., & Simakov, O. (2024).
+> Topological mixing and irreversibility in animal chromosome evolution.
+> *bioRxiv*, 2024.07.29.605683. [https://doi.org/10.1101/2024.07.29.605683](https://doi.org/10.1101/2024.07.29.605683)
 
->Destanović, D. (2023). Comparative structural genomics of Octopus (Master's Thesis, University of Vienna). https://doi.org/10.25365/thesis.73889
+> Destanović, D. (2023).
+> Comparative structural genomics of *Octopus* (Master's Thesis, University of Vienna).
+> [https://doi.org/10.25365/thesis.73889](https://doi.org/10.25365/thesis.73889)
