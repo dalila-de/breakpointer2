@@ -34,7 +34,7 @@ Python packages that are required are Pandas v1.5.2. (Team, 2023), Matplotlib v3
 
 # Installation Guide
 
-'git clone https://github.com/dalila-de/breakpointer2.git`
+`git clone https://github.com/dalila-de/breakpointer2.git`
 
 The script in the repository is ready to use as is after cloning.
 
@@ -78,11 +78,11 @@ Steps:
 
 5. This is an optional step. If you wish to visualize the .cool file, you can use HiCExplorer toolkit v3.7.2 (Ramírez et al., 2018; Wolff et al., 2018, 2020), and also generate a normalized and balanced .cool file.
 
-`hicCorrectMatrix diagnostic_plot -m species1.cool -o species1.png
-hicNormalize -m species1.cool --normalize norm_range -o species_normalized.cool
-#Here, you use Cooler again to create a balanced matrix
-cp species1_normalized.cool species1_normalized_balanced.cool
-cooler balance --force species1_normalized_balanced.cool`
+`hicCorrectMatrix diagnostic_plot -m species1.cool -o species1.png`
+`hicNormalize -m species1.cool --normalize norm_range -o species_normalized.cool`
+`#Here, you use Cooler again to create a balanced matrix`
+`cp species1_normalized.cool species1_normalized_balanced.cool`
+`cooler balance --force species1_normalized_balanced.cool`
 
 6. Use FAN-C Toolkit (Kruse et al., 2020) to convert the *.cool* files to the compatible format for the downstream analyses.
 
