@@ -30,8 +30,6 @@ sp1 = args.sp1
 #write the name of the reference species in the alignment
 sp2 = args.sp2
 #Write the alignment length cutoff for the table filtering
-#len_co = 10000
-#works for sinensis and bimac
 len_co= int(args.len_co)
 #Write the quality cutoff for the alignments
 q = int(args.q)
@@ -45,18 +43,18 @@ os.chdir(os.path.dirname(os.path.realpath('Breakpointer2.py')))
 #to disable the warning when adding the breakpoints column to the original dataframe
 pd.options.mode.chained_assignment = None
 
-#The .paf file part, aka the analysis of the breakpoints in genome-genome alignments
+#the analysis of the breakpoints in genome-genome alignments
 
 #This part reads in the .paf file as Pandas DataFrame
 sp1_to_sp2= pd.read_csv(args.input_paf, delimiter='\t', header=None, names= [sp1+'_chr',sp1+'_chr_size',sp1+'_start',sp1+'_stop','relative_orientation',sp2+'_chr',sp2+'_chr_size',sp2+'_start',sp2+'_stop','nmatch','alen','qual_score','col12','col13','col14','col15','col16','col17','col18'])
 
-#The .paf file has some extra columns which are unnecessary, so this line removes them
+#The .paf file has some extra columns that are unnecessary, so this line removes them
 sp1_to_sp2= sp1_to_sp2.drop(['col12','col13','col14','col15','col16','col17','col18'], axis =1)
 
-#This one sorts the by the values of 6 columns
+#This one sorts them by the values of 6 columns
 sp1_to_sp2= sp1_to_sp2.sort_values([sp1+'_chr',sp1+'_start',sp1+'_stop'])
 
-#This filters the dataframe to include only relevant alignments- the length of the alignment must be higher than the values given in len_co and wuality of the alignment must be higher than value q
+#This filters the dataframe to include only relevant alignments- the length of the alignment must be higher than the values given in len_co and quality of the alignment must be higher than value q
 sp1_to_sp2 = sp1_to_sp2[(sp1_to_sp2.alen > len_co) & (sp1_to_sp2.qual_score > q)]
 
 sp1_to_sp2 = sp1_to_sp2.reset_index()
@@ -64,7 +62,8 @@ sp1_to_sp2 = sp1_to_sp2.reset_index()
 sp1_to_sp2 = sp1_to_sp2.drop(['index'], axis=1)
 
 sp1_to_sp2_hm = sp1_to_sp2[[sp1+'_chr', sp2+'_chr', 'alen']]
-# Group by pairs in the alignment and sum up the alignment lengths
+
+#Group by pairs in the alignment and sum up the alignment lengths
 summed_df_sp1 = sp1_to_sp2_hm.groupby([sp1+'_chr', sp2+'_chr'])['alen'].sum().reset_index()
 summed_df_sp2 = sp1_to_sp2_hm.groupby([sp2+'_chr', sp1+'_chr'])['alen'].sum().reset_index()
 
@@ -100,8 +99,7 @@ def homologous_pairs(summed_df_sp1, sp1, sp2, table_of_homologous_pairs):
     return table_of_homologous_pairs
 
 
-# Use the function to get the homologous pairs
-
+# Use the function
 result_df1 = pd.DataFrame()
 result_df2 = pd.DataFrame()
 result_df1 = homologous_pairs(summed_df_sp1, sp1, sp2, result_df1)
@@ -133,8 +131,6 @@ for x in count_normalization:
         # Construct the contingency matrix
         contingency_matrix = [[int(max_alignment_df1/x+x/x), int(sum_other_df1/x +x/x)], [int(sum_other_df2/x+x/x), int(other_to_other/x+x/x)]]
         df_contingency = pd.DataFrame(contingency_matrix, columns = [chr2, 'Other chromosomes'], index = [chr1, 'Other chromosomes'])
-        #print(df_contingency)
-        #print(x)   
         # Perform Fisher's exact test
         odds_ratio, p_value = fisher_exact(contingency_matrix)
         #Bonferonni correction for FET, 4 tests are performed, because 2x2 contingency matrix is used
@@ -148,9 +144,7 @@ list_sp2 = result_df1['Chr2'].tolist()
 
 chromosome_pairs = dict(zip(list_sp1, list_sp2))
 
-#.gff or .bed file part
-# 100kb windows for .bed
-#try to plot 5k thing on the HiGlass for example
+#.bed file part
 bimac_insul_sc_500kb = pd.read_csv(args.input_ins_score_sp1, delimiter='\t', header= None, names=[sp1+'_chr', sp1+'_start',sp1+'_stop', 'irrel1', 'insul_score','irrel2'])
 bimac_insul_sc_500kb = bimac_insul_sc_500kb.dropna().drop(['irrel1','irrel2'], axis=1)
 
@@ -250,7 +244,6 @@ def permut_test_histogram (insul_sc_sp_bp, insul_sc_sp, sp):
     if fdr == 0:
         corr= 1/num_rounds
         fdr= format(f"<{corr}")
-    print(fdr)
     index = list(range(5))
     if sp == sp1 and len(insul_sc_sp_bp)<=80:
         stats_df = {
@@ -296,7 +289,7 @@ breakpoints_fin_sp1 = pd.DataFrame()
 breakpoints_fin_sp2 = pd.DataFrame()
 #The for loop
 species_list = [sp1,sp2]
-#This one sorts the by the values of 6 columns
+#This one sorts them by the values of 6 columns
 for i in species_list:
     df_name = format(f"sorted_by_{i}")
     globals()[df_name] = sp1_to_sp2.sort_values([i+'_chr',i+'_start',i+'_stop'])
@@ -309,16 +302,11 @@ for i in species_list:
         globals()[pairs]=globals()[df_name].loc[(globals()[df_name][sp1+'_chr']==k) & (globals()[df_name][sp2+'_chr']==chromosome_pairs[k]),]
         sp1_insul_k = bimac_insul_sc_500kb.loc[(bimac_insul_sc_500kb[sp1+'_chr'] == k),]
         sp2_insul_k = vulg_insul_sc_500kb.loc[(vulg_insul_sc_500kb[sp2+'_chr']== chromosome_pairs[k]),]
-        #globals()[pairs] = globals()[pairs].reset_index()
         #I open this list as it has been shown as the easiest-least-crashiest way to do what I want to do
         the_list = []
-        #bed file starts and stops: the start is the least num and the stop is higher (regardless of the strand)
         #write an if statement and plot them vice versa for - direction
         globals()[pairs]['breakpoint_in_species'] = np.nan
         globals()[pairs]['breakpoint_in_species']=globals()[pairs]['breakpoint_in_species'].astype(str)
-        #bed file starts and stops: the start is the least num and the stop is higher (regardless of the strand)
-        #write an if statement and plot them vice versa for - direction
-        #k = "CM046602.1"
         for z in species_list:
             globals()[pairs] = globals()[pairs].sort_values([z+'_chr',z+'_start',z+'_stop'])
             globals()[pairs] = globals()[pairs].reset_index()
@@ -355,8 +343,7 @@ for i in species_list:
                     the_list.append(row)
                     the_list.append(next_row)
             globals()[pairs] = globals()[pairs].set_index('index')
-                    
-        #Seems like breakpoint can be detected in both, should be aware of that
+            
         if len(the_list)>0:
             globals()[pairs] = globals()[pairs].sort_values([i+'_chr',i+'_start',i+'_stop'])
             breakp_df = format(f"concat_list_{i}")
@@ -367,11 +354,8 @@ for i in species_list:
             globals()[breakp_df] = globals()[breakp_df][~globals()[breakp_df].index.duplicated(keep='first')].sort_values([i+'_chr',i+'_start',i+'_stop'])
             globals()[pairs] = globals()[pairs].drop(['breakpoint_in_species'], axis=1)
             globals()[breakp_df]['breakpoints']= 'True'
-            
-            #globals()[breakp_df] = globals()[breakp_df].reset_index()
             globals()[breakp_df][['midpoint_'+sp1,'midpoint_'+sp2, 'insul_score_'+sp1, 'insul_score_'+sp2]] = np.nan
             breakp = len(globals()[breakp_df])
-            #result_table = format(f"checkpoint_insul_sc_{i}_{k}")
             result_table = format(f'{i}_midpoint')
             subset = globals()[breakp_df][['breakpoints','breakpoint_in_species', 'midpoint_'+sp1,'midpoint_'+sp2, 'insul_score_'+sp1, 'insul_score_'+sp2]]
             globals()[pairs] = globals()[pairs].join(subset, how='left')
@@ -392,7 +376,6 @@ for i in species_list:
             
             list_pos_rel_ori=[]
             list_neg_rel_ori=[]
-            #if i == sp1:
             fig, ax = plt.subplots(figsize=(10, 10))
             for l in range(len(globals()[pairs])):
                 row = globals()[pairs].iloc[l]
