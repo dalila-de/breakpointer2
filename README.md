@@ -116,7 +116,7 @@ Now that the alignment (*.paf*) and insulation score files (*.bed*) have been ge
 
 Example command:
 
-`python /path/breakpointer2/Breakpointer2.py --input-paf species1_species2.paf --input_ins_score_sp1 species1.bed --input_ins_score_sp2 species2.bed --sp1 Ovu --sp2 Obi --len-co 100000 --len-bp 5000000 --q 30 --num-rounds 100000 --output_fin_tab species1_species2.tsv`
+`python /path/to/breakpointer2/Breakpointer2.py species1_to_species2.paf species1_500kb_window_size.bed species2_500kb_window_size.bed sp1 sp2 100000 5000000 30 100000 sp1_sp2`
 
 There are additional output files, including a statistical summary for the colocalization of breakpoints and borders of topologically associated domains.
 A *.bed* file is also generated for the identified breakpoints in each species. This means that if you have a reference genome, you can view breaks in different species against this reference in IGV (https://igv.org/doc/desktop/#), or if you want to view the breakpoints relative to the Hi-C heatmap, one can visualize the *.bed* files on HiGlass (Kerpedjiev et al., 2018).
