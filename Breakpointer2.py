@@ -21,7 +21,7 @@ parser.add_argument('--sp2', help = 'species 2 in .paf file', required=True)
 parser.add_argument('--len_co', help='minimum alignment length to be kept', default=100000, type=int)
 parser.add_argument('--len_bp', help = 'distance needed to call a break', default=5000000, type=int)
 parser.add_argument('--q', help = 'quality cutoff value', default=30, type=int)
-parser.add_argument('--num_rounds', help='number of permutations for one-tailed permutation test', default=100000, type=int))
+parser.add_argument('--num_rounds', help='number of permutations for one-tailed permutation test', default=100000, type=int)
 parser.add_argument('--output_fin_tab', help='Overall table', required=True)
 
 args = parser.parse_args()
