@@ -13,16 +13,17 @@ import matplotlib
 from scipy.stats import fisher_exact
 
 parser =argparse.ArgumentParser(description='This script uses the output of the .paf alignments and the FAN-C insulation score files to detect breakpoints in the genome-genome alignments (species-species comparison')
-parser.add_argument('input_paf', help='This is the alignment file')
-parser.add_argument('input_ins_score_sp1', help= 'FAN-C insulation score for sp1')
-parser.add_argument('input_ins_score_sp2', help= 'FAN-C insulation score for sp2')
-parser.add_argument('sp1', help = 'species 1 in .paf file')
-parser.add_argument('sp2', help = 'species 2 in .paf file')
-parser.add_argument('len_co', help='minimum alignment length to be kept', default=100000)
-parser.add_argument('len_bp', help = 'distance needed to call a break', default=5000000)
-parser.add_argument('q', help = 'quality cutoff value', default=30)
-parser.add_argument('num_rounds', help='number of permutations for one-tailed permutation test', default=100000)
-parser.add_argument('output_fin_tab', help='Overall table')
+parser.add_argument('--input_paf', help='This is the alignment file', required=True)
+parser.add_argument('--input_ins_score_sp1', help= 'FAN-C insulation score for sp1', required=True)
+parser.add_argument('--input_ins_score_sp2', help= 'FAN-C insulation score for sp2', required=True)
+parser.add_argument('--sp1', help = 'species 1 in .paf file', required=True)
+parser.add_argument('--sp2', help = 'species 2 in .paf file', required=True)
+parser.add_argument('--len_co', help='minimum alignment length to be kept', default=100000, type=int)
+parser.add_argument('--len_bp', help = 'distance needed to call a break', default=5000000, type=int)
+parser.add_argument('--q', help = 'quality cutoff value', default=30, type=int)
+parser.add_argument('--num_rounds', help='number of permutations for one-tailed permutation test', default=100000, type=int))
+parser.add_argument('--output_fin_tab', help='Overall table', required=True)
+
 args = parser.parse_args()
 matplotlib.use('Agg')
 #write the name of the query species in the alignment
@@ -30,13 +31,13 @@ sp1 = args.sp1
 #write the name of the reference species in the alignment
 sp2 = args.sp2
 #Write the alignment length cutoff for the table filtering
-len_co= int(args.len_co)
+len_co= args.len_co
 #Write the quality cutoff for the alignments
-q = int(args.q)
+q = args.q
 #Write what's the distance between two ends of the aligned fragments to call it a breakpoint
-len_bp = int(args.len_bp)
+len_bp = args.len_bp
 #set the number of permutations
-num_rounds=int(args.num_rounds)
+num_rounds=args.num_rounds
 
 os.chdir(os.path.dirname(os.path.realpath('Breakpointer2.py')))
 
